@@ -1,6 +1,7 @@
 import random
 
 def jugar(icono_jugador1, icono_jugador2):
+    dificultad = seleccionarDificultad()
     # jugador1 = x, jugador2 = o
     tablero = [
         ['-', '-', '-'],
@@ -11,7 +12,7 @@ def jugar(icono_jugador1, icono_jugador2):
     turno = turnoInicial()
     mostrar_tablero(tablero)
     while(not ganador):
-        tablero = jugarTurno(turno, tablero, icono_jugador1, icono_jugador2)
+        tablero = jugarTurno(turno, tablero, icono_jugador1, icono_jugador2, dificultad)
         mostrar_tablero(tablero)
         resultado = comprobar_resultado(tablero, icono_jugador1, icono_jugador2)
         if(resultado):
@@ -26,7 +27,7 @@ def mostrarMenuInicio():
 def turnoInicial():
     return random.randint(0,1)
 
-def jugarTurno(jugador, tablero, icono_jugador1, icono_jugador2):
+def jugarTurno(jugador, tablero, icono_jugador1, icono_jugador2, dificultad):
     if(not jugador):
         jugadaValida = False
         while(not jugadaValida):
@@ -37,12 +38,12 @@ def jugarTurno(jugador, tablero, icono_jugador1, icono_jugador2):
                 jugadaValida = True
     else:
         print("Turno de la máquina")
-        nuevo_tablero = jugarMaquina(tablero, icono_jugador2)
+        nuevo_tablero = dificultad(tablero, icono_jugador2)
     return nuevo_tablero
 
 # icono = o
 # devuelve el nuevo tablero
-def jugarMaquina(tablero, icono):
+def jugarMaquinaFacil(tablero, icono):
     jugado = False
     while(not jugado) :
         posicion = [random.randint(0,2), random.randint(0,2)]
@@ -50,6 +51,17 @@ def jugarMaquina(tablero, icono):
             tablero[posicion[0]][posicion[1]] = icono
             jugado = True
     return tablero
+
+def jugarMaquinaNormal(tablero, icono):
+    casilla = comprobarPosibleVictoria(tablero,icono)
+    if(not casilla):
+        return jugarMaquinaFacil(tablero, icono)
+    else:
+        tablero[casilla[0]][casilla[1]] = icono
+        return tablero
+
+def jugarMaquinaDificil(tablero, icono):
+    print()
 
 # Devuelve true si se ha jugado correctamente y False si no está vacía la casilla marcada por el usuario
 def jugarUsuario(posicion, tablero, icono):
@@ -68,8 +80,8 @@ def obtenerPosicionUsuario():
         posicion = posicion.split(',')
         if (len(posicion) != 2):
             raise ValueError("Casilla inválida.")
-        fila = int(posicion[0]-1)
-        columna = int(posicion[1]-1)   
+        fila = int(posicion[0])-1
+        columna = int(posicion[1])-1   
 
         if fila < 0 or fila >= 3 or columna < 0 or columna >= 3:
             raise ValueError("Las posiciones deben estar entre 1 y 3.")
@@ -124,7 +136,54 @@ def comprobar_resultado(tablero, icono_jugador1, icono_jugador2):
     else:
         resultado = False
     return resultado
-        
+
+# devuelve la posición de la casilla que tiene que marcar o False
+def comprobarPosibleVictoria(tablero, icono):
+    # Comprobar filas
+    for fila in tablero:
+        contador = 0
+        for celda in fila:
+            print(f"Fila: {fila}, Celda: {celda}")
+            if (tablero[fila][celda] == icono):
+                contador+=1
+            else:
+                casillaLibre = [fila][celda]
+            if (contador == 2):
+                return casillaLibre
+
+    # Comprobar columnas
+    for columna in range(len(tablero[0])):
+        contador = 0
+        for fila in range(len(columna)):
+            if (tablero[fila][columna] == icono):
+                contador+=1
+            else:
+                casillaLibre = [fila][columna]
+            if (contador == 2):
+                return casillaLibre
+
+    # Comprobar diagonal principal
+    for i in range(len(tablero)):
+        contador = 0
+        if (tablero[i][i] == icono):
+            contador+=1
+        else:
+            casillaLibre = [i][i]
+    if (contador == 2):
+        return casillaLibre
+
+    # Comprobar diagonal secundaria
+    for i in range(len(tablero)):
+        contador = 0
+        if (tablero[i][len(tablero)-1-i] == icono):
+            contador+=1
+        else:
+            casillaLibre = [i][len(tablero)-1-i]
+    if (contador == 2):
+        return casillaLibre
+
+    return False
+
 def mostrar_resultado(icono_jugador1, icono_jugador2):
     if (resultado == icono_jugador1):
         print("¡Enhorabuena! ¡Has ganado!")
@@ -136,6 +195,24 @@ def mostrar_resultado(icono_jugador1, icono_jugador2):
 def mostrar_tablero(tablero):
     for fila in tablero:
         print(" | ".join(fila))
+
+def seleccionarDificultad():
+    dificultadSeleccionada = False
+    while(not dificultadSeleccionada):
+        try:
+            dificultad = int(input("Selecciona la dificultad:\n    1 - Fácil\n    2 - Normal\n    3 - Díficil\n"))
+            if (dificultad == 1):
+                dificultadMaquina = jugarMaquinaFacil
+            elif (dificultad == 2):
+                dificultadMaquina = jugarMaquinaNormal
+            elif (dificultad == 3):
+                dificultadMaquina = jugarMaquinaDificil
+            else:
+                raise ValueError("Opción inválida")
+            dificultadSeleccionada = True
+        except Exception:
+            print("Por favor, escoja una dificultad válida\n")
+    return dificultadMaquina
         
 icono_jugador1 = 'x'
 icono_jugador2 = 'o'
