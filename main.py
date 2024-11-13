@@ -38,12 +38,12 @@ def jugarTurno(jugador, tablero, icono_jugador1, icono_jugador2, dificultad):
                 jugadaValida = True
     else:
         print("Turno de la máquina")
-        nuevo_tablero = dificultad(tablero, icono_jugador2)
+        nuevo_tablero = dificultad(tablero, icono_jugador2, icono_jugador1)
     return nuevo_tablero
 
 # icono = o
 # devuelve el nuevo tablero
-def jugarMaquinaFacil(tablero, icono):
+def jugarMaquinaFacil(tablero, icono, icono_usuario):
     jugado = False
     while(not jugado) :
         posicion = [random.randint(0,2), random.randint(0,2)]
@@ -52,15 +52,17 @@ def jugarMaquinaFacil(tablero, icono):
             jugado = True
     return tablero
 
-def jugarMaquinaNormal(tablero, icono):
-    casilla = comprobarPosibleVictoria(tablero,icono)
+def jugarMaquinaNormal(tablero, icono_maquina, icono_usuario):
+    casilla = comprobarPosibleVictoria(tablero,icono_maquina)
     if(not casilla):
-        return jugarMaquinaFacil(tablero, icono)
-    else:
-        tablero[casilla[0]][casilla[1]] = icono
-        return tablero
+        casilla = comprobarPosibleVictoria(tablero,icono_usuario)
+        if(not casilla):
+            return jugarMaquinaFacil(tablero, icono_maquina, icono_usuario)
+    print(f"Casilla: {casilla}")
+    tablero[casilla[0]][casilla[1]] = icono_maquina
+    return tablero
 
-def jugarMaquinaDificil(tablero, icono):
+def jugarMaquinaDificil(tablero, icono_maquina, icono_usuario):
     print()
 
 # Devuelve true si se ha jugado correctamente y False si no está vacía la casilla marcada por el usuario
@@ -137,49 +139,51 @@ def comprobar_resultado(tablero, icono_jugador1, icono_jugador2):
         resultado = False
     return resultado
 
-# devuelve la posición de la casilla que tiene que marcar o False
 def comprobarPosibleVictoria(tablero, icono):
     # Comprobar filas
-    for fila in tablero:
+    for i, fila in enumerate(tablero):
         contador = 0
-        for celda in fila:
-            print(f"Fila: {fila}, Celda: {celda}")
-            if (tablero[fila][celda] == icono):
-                contador+=1
-            else:
-                casillaLibre = [fila][celda]
-            if (contador == 2):
-                return casillaLibre
+        casillaLibre = None
+        for j, celda in enumerate(fila):
+            if tablero[i][j] == icono:
+                contador += 1
+            elif tablero[i][j] == "-":
+                casillaLibre = (i, j)
+        if contador == 2 and casillaLibre is not None:
+            return casillaLibre
 
     # Comprobar columnas
     for columna in range(len(tablero[0])):
         contador = 0
-        for fila in range(len(columna)):
-            if (tablero[fila][columna] == icono):
-                contador+=1
-            else:
-                casillaLibre = [fila][columna]
-            if (contador == 2):
-                return casillaLibre
+        casillaLibre = None
+        for fila in range(len(tablero)):
+            if tablero[fila][columna] == icono:
+                contador += 1
+            elif tablero[fila][columna] == "-":
+                casillaLibre = (fila, columna)
+        if contador == 2 and casillaLibre is not None:
+            return casillaLibre
 
     # Comprobar diagonal principal
+    contador = 0
+    casillaLibre = None
     for i in range(len(tablero)):
-        contador = 0
-        if (tablero[i][i] == icono):
-            contador+=1
-        else:
-            casillaLibre = [i][i]
-    if (contador == 2):
+        if tablero[i][i] == icono:
+            contador += 1
+        elif tablero[i][i] == "-":
+            casillaLibre = (i, i)
+    if contador == 2 and casillaLibre is not None:
         return casillaLibre
 
     # Comprobar diagonal secundaria
+    contador = 0
+    casillaLibre = None
     for i in range(len(tablero)):
-        contador = 0
-        if (tablero[i][len(tablero)-1-i] == icono):
-            contador+=1
-        else:
-            casillaLibre = [i][len(tablero)-1-i]
-    if (contador == 2):
+        if tablero[i][len(tablero) - 1 - i] == icono:
+            contador += 1
+        elif tablero[i][len(tablero) - 1 - i] == "-":
+            casillaLibre = (i, len(tablero) - 1 - i)
+    if contador == 2 and casillaLibre is not None:
         return casillaLibre
 
     return False
