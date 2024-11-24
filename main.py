@@ -66,7 +66,7 @@ def jugarMaquinaDificil(tablero, icono_maquina, icono_usuario):
     n_icono_maquina = 0
     n_icono_usuario = 0
     esquinas = [(0,0), (0,2), (2,0), (2,2)]
-    laterales = [(0.1), (1,0), (1,2), (2,1)]
+    laterales = [(0,1), (1,0), (1,2), (2,1)]
     centro = (1,1)
     movimientos_usuario = []
     movimientos_maquina = []
@@ -127,10 +127,36 @@ def jugarMaquinaDificil(tablero, icono_maquina, icono_usuario):
             movimiento = jugarMaquinaFacil(tablero, icono_maquina, icono_usuario)
     # juega el usuario primero
     else:
-        print()
+        if n_icono_maquina == 0: # Primer movimiento
+            if centro in movimientos_usuario:
+                movimiento = random.randint(0,len(esquinas)-1)
+                movimiento = esquinas[movimiento]
+            else:
+                movimiento = centro
+        elif n_icono_maquina == 1: #segundo movimiento
+            if hay_esquinas_contrarias(movimientos_usuario):
+                movimiento = random.randint(0,len(laterales)-1)
+                movimiento = laterales[movimiento]
+            else:
+                movimiento = jugarMaquinaNormal(tablero, icono_maquina, icono_usuario)
+        else:
+            movimiento = jugarMaquinaNormal(tablero, icono_maquina, icono_usuario)
+    tablero[movimiento[0]][movimiento[1]] = icono_maquina
+    return tablero
 
 def esquina_contraria(esquina):
     return (2 - esquina[0], 2 - esquina[1])
+
+def hay_esquinas_contrarias(movimientos):
+    # Esquinas contrarias
+    esquinas_opuestas = [((0, 0), (2, 2)), ((0, 2), (2, 0))]
+    
+    # Verificar si algún par de esquinas opuestas está en los movimientos
+    for esquina1, esquina2 in esquinas_opuestas:
+        if esquina1 in movimientos and esquina2 in movimientos:
+            return True
+    
+    return False
 
 # Devuelve true si se ha jugado correctamente y False si no está vacía la casilla marcada por el usuario
 def jugarUsuario(posicion, tablero, icono):
