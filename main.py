@@ -63,7 +63,74 @@ def jugarMaquinaNormal(tablero, icono_maquina, icono_usuario):
     return tablero
 
 def jugarMaquinaDificil(tablero, icono_maquina, icono_usuario):
-    print()
+    n_icono_maquina = 0
+    n_icono_usuario = 0
+    esquinas = [(0,0), (0,2), (2,0), (2,2)]
+    laterales = [(0.1), (1,0), (1,2), (2,1)]
+    centro = (1,1)
+    movimientos_usuario = []
+    movimientos_maquina = []
+    for indiceFila, fila in enumerate(tablero):
+        for indiceColumna, celda in enumerate(fila):
+            if celda == icono_maquina:
+                n_icono_maquina +=1
+                movimientos_maquina.append((indiceFila, indiceColumna))
+            if celda == icono_usuario:
+                n_icono_usuario +=1
+                movimientos_usuario.append((indiceFila, indiceColumna))
+    # juega la máquina primero
+    if n_icono_maquina == n_icono_usuario:
+        if n_icono_maquina == 0: # Primer movimiento
+            movimiento = random.randint(0,len(esquinas)-1)
+            movimiento = esquinas[movimiento]
+        elif n_icono_maquina == 1: #segundo movimiento
+            movimiento_usuario = movimientos_usuario[0]
+            movimiento_maquina = movimientos_maquina[0]
+            if movimiento_usuario == centro:
+                #muevo a la esquina contraria
+                movimiento = esquina_contraria(movimiento_maquina)
+            elif movimiento_usuario in esquinas:
+                if movimiento_usuario == esquina_contraria(movimiento_maquina):
+                    movimiento = centro
+                else:
+                    movimiento = esquina_contraria(movimiento_maquina)
+            else:
+                movimiento = centro
+        elif n_icono_maquina == 2: # tercer movimiento
+            if comprobarPosibleVictoria(tablero, icono_maquina) != None:
+                movimiento = comprobarPosibleVictoria(tablero, icono_maquina)
+            elif comprobarPosibleVictoria(tablero, icono_usuario) != None:
+                movimiento = comprobarPosibleVictoria(tablero, icono_usuario)
+            else:
+                if any(movimiento in laterales for movimiento in movimientos_usuario):
+                    # Detectar el movimiento lateral del usuario
+                    movimiento_usuario_lateral = next(
+                        movimiento for movimiento in movimientos_usuario if movimiento in laterales
+                    )
+                    # Calcular la posición contraria y paralela
+                    x, y = movimiento_usuario_lateral
+                    if x == 0 or x == 2:  # Lateral en una columna
+                        movimiento = (2 - x, y)
+                    elif y == 0 or y == 2:  # Lateral en una fila
+                        movimiento = (x, 2 - y)
+                    # Elegir la esquina adyacente que esté libre
+                    esquinas_libres = [
+                        esquina for esquina in esquinas
+                        if tablero[esquina[0]][esquina[1]] == '' and esquina not in [
+                            (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)
+                        ]
+                    ]
+                    movimiento = esquinas_libres[0] #siempre va a haber una esquina libre
+                else:
+                    movimiento = jugarMaquinaFacil(tablero, icono_maquina, icono_usuario)
+        else:
+            movimiento = jugarMaquinaFacil(tablero, icono_maquina, icono_usuario)
+    # juega el usuario primero
+    else:
+        print()
+
+def esquina_contraria(esquina):
+    return (2 - esquina[0], 2 - esquina[1])
 
 # Devuelve true si se ha jugado correctamente y False si no está vacía la casilla marcada por el usuario
 def jugarUsuario(posicion, tablero, icono):
