@@ -21,7 +21,7 @@ def jugar(icono_jugador1, icono_jugador2):
     return resultado
 
 def mostrarMenuInicio():
-    saludo = "Hola, bienvenido al 3 en raya\nPulsa 1 para jugar\nPulsa 2 para ver las normas\nPulsa 3 para finalizar el programa\n"
+    saludo = "Hola, bienvenido al 3 en raya\nPulsa 1 para jugar\nPulsa 2 para ver las instrucciones\nPulsa 3 para finalizar el programa\n"
     return saludo
 
 def turnoInicial():
@@ -169,8 +169,8 @@ def jugarUsuario(posicion, tablero, icono):
     else:
         return False
 
-def normas():
-    return "Normas:\n    - El primer número representa la fila\n    - El segundo número representa la columna\n    - El rango de númeores está entre 1 y 3\n"
+def instrucciones():
+    return "Instrucciones:\n    - El primer número representa la fila\n    - El segundo número representa la columna\n    - El rango de númeores está entre 1 y 3\n"
 
 def obtenerPosicionUsuario():
     try:
@@ -323,7 +323,7 @@ while(not finalizar):
         resultado = jugar(icono_jugador1, icono_jugador2)
         mostrar_resultado(icono_jugador1, icono_jugador2)
     elif eleccion_usuario == 2:
-        print(normas())
+        print(instrucciones())
     elif eleccion_usuario == 3:
         finalizar = True
     else:
